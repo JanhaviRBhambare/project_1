@@ -1,6 +1,5 @@
-
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -17,6 +16,7 @@ const AnemiaChatbot = () => {
     }]);
     const [userInput, setUserInput] = useState('');
     const [currentStep, setCurrentStep] = useState(0);
+    const [showResults, setShowResults] = useState(false);
     const [userData, setUserData] = useState({
         name: '',
         gender: '',
@@ -24,6 +24,37 @@ const AnemiaChatbot = () => {
         bloodGroup: '',
         symptoms: []
     });
+
+    // Reference for message container
+    const messagesEndRef = useRef(null);
+
+    // Scroll to bottom whenever messages change
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    // Handle enter key for text/number inputs
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && userInput.trim() && (steps[currentStep].type === 'text' || steps[currentStep].type === 'number')) {
+            handleUserInput(userInput);
+        }
+    };
+
+    // Type validation function
+    const validateInput = (input, type) => {
+        switch (type) {
+            case 'number':
+                return !isNaN(input) && input > 0 && input < 150;
+            case 'text':
+                return input.trim().length > 0;
+            default:
+                return true;
+        }
+    };
 
     const steps = [
         {
@@ -70,6 +101,13 @@ const AnemiaChatbot = () => {
     };
 
     const handleUserInput = async (input) => {
+        // Validate input based on type
+        const currentStepType = steps[currentStep].type;
+        if (!validateInput(input, currentStepType)) {
+            addMessage("Please provide a valid input.", 'bot');
+            return;
+        }
+
         // Add user's message to chat
         addMessage(input, 'user');
         setUserInput('');
@@ -108,9 +146,10 @@ const AnemiaChatbot = () => {
             try {
                 // Simulate API call
                 setTimeout(() => {
-                    addMessage("Based on your symptoms and information provided, I recommend consulting with a healthcare provider for a proper anemia screening. Would you like to start another assessment?");
-                    setStarted(false);
-                    setCurrentStep(0);
+                    addMessage("Based on your symptoms and information provided, I recommend consulting with a healthcare provider for a proper anemia screening.");
+                    setTimeout(() => {
+                        setShowResults(true);
+                    }, 1000);
                 }, 2000);
             } catch (error) {
                 addMessage("I apologize, but I encountered an error processing your information. Would you like to try again?");
@@ -131,6 +170,7 @@ const AnemiaChatbot = () => {
                             type={step.type}
                             value={userInput}
                             onChange={(e) => setUserInput(e.target.value)}
+                            onKeyPress={handleKeyPress}
                             placeholder="Type your answer..."
                             className="flex-1"
                         />
@@ -202,6 +242,42 @@ const AnemiaChatbot = () => {
         }
     };
 
+    // If showResults is true, you can render your results component
+    if (showResults) {
+        return (
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
+                <div className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
+                    <Card className="w-[500px]">
+                        <CardContent className="p-6">
+                            <h2 className="text-2xl font-bold mb-4">Assessment Results</h2>
+                            <div className="space-y-4">
+                                <p><strong>Name:</strong> {userData.name}</p>
+                                <p><strong>Age:</strong> {userData.age}</p>
+                                <p><strong>Gender:</strong> {userData.gender}</p>
+                                <p><strong>Blood Group:</strong> {userData.bloodGroup}</p>
+                                <p><strong>Symptoms:</strong> {Array.isArray(userData.symptoms) ? userData.symptoms.join(', ') : 'None reported'}</p>
+                                <Button
+                                    onClick={() => {
+                                        setShowResults(false);
+                                        setStarted(false);
+                                        setCurrentStep(0);
+                                        setMessages([{
+                                            type: 'bot',
+                                            content: "Hello! I'm your Anemia Detection Assistant. Would you like to start another assessment?",
+                                        }]);
+                                    }}
+                                    className="w-full"
+                                >
+                                    Start New Assessment
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-4xl mx-auto p-4 space-y-4">
             {/* Introduction Section */}
@@ -242,6 +318,7 @@ const AnemiaChatbot = () => {
                                 </div>
                             </div>
                         ))}
+                        <div ref={messagesEndRef} />
                     </div>
 
                     {/* Input Section */}
