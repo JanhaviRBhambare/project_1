@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { MessageCircle, Send, ArrowRight } from 'lucide-react';
+import AnemiaTester from '../../components/AnemiaTester';
 
 const AnemiaChatbot = () => {
     const [started, setStarted] = useState(false);
@@ -246,7 +247,7 @@ const AnemiaChatbot = () => {
     if (showResults) {
         return (
             <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
-                <div className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
+                {/* <div className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
                     <Card className="w-[500px]">
                         <CardContent className="p-6">
                             <h2 className="text-2xl font-bold mb-4">Assessment Results</h2>
@@ -273,7 +274,9 @@ const AnemiaChatbot = () => {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
+                </div> */}
+
+                <AnemiaTester />
             </div>
         );
     }
