@@ -1,6 +1,5 @@
-Anemia Analysis WebApp
+Anemia Analysis WebApp Overview
 
-Overview
 This project aims to provide a comprehensive solution for analyzing anemia-related data and assisting users through the process. The key features include:
 
 MuIti-Image Analysis: Integrates three different image types (nail, palm, and eye) to enable more accurate multi-modal analysis.
