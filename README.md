@@ -29,9 +29,9 @@ Web Development Framework: Next.js
 
 Development Environment: Code Editor, VS Code, Jupyter Notebook
 
-Getting Started 
-
 ---------------------------------------------------------------------------------
+
+Getting Started 
 
 Frontend
 
