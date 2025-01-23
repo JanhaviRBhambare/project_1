@@ -9,6 +9,8 @@ Advanced CNN Architecture: Employs Convolutional Neural Networks (ResNet_Bases) 
 AI-Powered Chatbot: Leverages IBM Watson Assistant to guide users through the entire process as a personalized medical assistant.
 RAG Application Feature: Allows users to ask anemia-related questions in natural language and retrieve precise, contextual information.
 
+-----------------------------------------------------------------------
+
 Technology Used
 
 Deep Learning Algorithm: Convolutional Neural Networks (ResNet_Bases)
