@@ -18,7 +18,7 @@ RAG Application: Employs Watsonx Services and IBM Granite Model
 Web Development Framework: Next.js
 Development Environment: Code Editor, VS Code, Jupyter Notebook
 
-Getting Started
+Getting Started 😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊
 Frontend
 
 Navigate to the anemia-webapp directory.
