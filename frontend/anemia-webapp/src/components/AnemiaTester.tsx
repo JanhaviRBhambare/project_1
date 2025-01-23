@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert"
 import { Button } from "~/components/ui/button"
 import ImageCapture from "./ImageCapture"
 import ResultDisplay from "./ResultDisplay"
+import { useRouter } from "next/navigation"
 
 type BodyPart = "eye" | "nail" | "palm"
 
@@ -15,6 +16,8 @@ export default function AnemiaTester() {
     nail: "",
     palm: "",
   })
+
+  const router = useRouter();
   const [result, setResult] = useState<number | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
@@ -27,13 +30,50 @@ export default function AnemiaTester() {
   }
 
   const analyzeImages = async () => {
+    if (!images.eye || !images.nail || !images.palm) return
+
     setIsAnalyzing(true)
-    // In a real application, you would send the images to a backend service
-    // Here, we're just simulating a response
-    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate processing time
-    const mockResult = Math.floor(Math.random() * 101) // Random percentage between 0 and 100
-    setResult(mockResult)
-    setIsAnalyzing(false)
+    const formData = new FormData()
+    formData.append("palm", dataURLtoBlob(images.palm), "palm.jpg")
+    formData.append("nail", dataURLtoBlob(images.nail), "nail.jpg")
+    formData.append("eye", dataURLtoBlob(images.eye), "eye.jpg")
+
+    try {
+      const response = await fetch("http://localhost:8000/predict", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) throw new Error("Failed to analyze images.")
+
+      const data = await response.json()
+
+      localStorage.setItem("analysisResults", JSON.stringify(data));
+
+
+
+      setResult(data.final_result.average_confidence * 100) // Convert confidence to percentage
+
+      setTimeout(() => {
+        router.push('/chat-chat')
+      }, 2000)
+    } catch (error) {
+      console.error("Error:", error)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const dataURLtoBlob = (dataURL: string): Blob => {
+    const [header, base64Data] = dataURL.split(',')
+    const mimeMatch = header.match(/:(.*?);/)
+    const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg"
+    const binary = atob(base64Data)
+    const array = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      array[i] = binary.charCodeAt(i)
+    }
+    return new Blob([array], { type: mimeType })
   }
 
   const allImagesCaptured = Object.values(images).every(Boolean)
@@ -89,4 +129,3 @@ export default function AnemiaTester() {
     </div>
   )
 }
-

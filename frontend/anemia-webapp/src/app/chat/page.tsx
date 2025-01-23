@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -8,6 +9,7 @@ import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { MessageCircle, Send, ArrowRight } from 'lucide-react';
 import AnemiaTester from '../../components/AnemiaTester';
+import { useRouter } from 'next/navigation';
 
 const AnemiaChatbot = () => {
     const [started, setStarted] = useState(false);
@@ -26,6 +28,7 @@ const AnemiaChatbot = () => {
         symptoms: []
     });
 
+    const router = useRouter()
     // Reference for message container
     const messagesEndRef = useRef(null);
 
@@ -102,18 +105,15 @@ const AnemiaChatbot = () => {
     };
 
     const handleUserInput = async (input) => {
-        // Validate input based on type
         const currentStepType = steps[currentStep].type;
         if (!validateInput(input, currentStepType)) {
             addMessage("Please provide a valid input.", 'bot');
             return;
         }
 
-        // Add user's message to chat
         addMessage(input, 'user');
         setUserInput('');
 
-        // Update userData based on current step
         const updatedData = { ...userData };
         switch (currentStep) {
             case 0:
@@ -134,7 +134,16 @@ const AnemiaChatbot = () => {
         }
         setUserData(updatedData);
 
-        // Move to next step
+        // Save the updated data in localStorage
+        localStorage.setItem('userData', JSON.stringify(updatedData));
+
+        localStorage.setItem("analysisResults", JSON.stringify({
+            nail: { class: "Non_Anemic", confidence: 78.56 },
+            palm: { class: "Anemic", confidence: 89.12 },
+            eye: { class: "Anemic", confidence: 91.45 },
+            final_result: { class: "Anemic", average_confidence: 86.37 }
+        }));
+
         if (currentStep < steps.length - 1) {
             const nextQuestion = steps[currentStep + 1].question.replace('{name}', updatedData.name);
             setTimeout(() => {
@@ -142,15 +151,15 @@ const AnemiaChatbot = () => {
                 setCurrentStep(prev => prev + 1);
             }, 500);
         } else {
-            // Final submission
             addMessage("Thank you for providing all the information. Let me analyze your responses...");
             try {
-                // Simulate API call
                 setTimeout(() => {
                     addMessage("Based on your symptoms and information provided, I recommend consulting with a healthcare provider for a proper anemia screening.");
                     setTimeout(() => {
                         setShowResults(true);
                     }, 1000);
+                    router.push('/analysis-page')
+
                 }, 2000);
             } catch (error) {
                 addMessage("I apologize, but I encountered an error processing your information. Would you like to try again?");
@@ -285,11 +294,11 @@ const AnemiaChatbot = () => {
         <div className="max-w-4xl mx-auto p-4 space-y-4">
             {/* Introduction Section */}
             <div className="text-center space-y-4 mb-8">
-                <img
-                    src="/api/placeholder/800/400"
+                {/* <img
+                    src="/7317079.jpg"
                     alt="Healthcare illustration"
                     className="rounded-lg mx-auto"
-                />
+                /> */}
                 <h1 className="text-3xl font-bold text-primary">Anemia Detection Assistant</h1>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                     Anemia affects millions of people worldwide. This assistant helps you understand
