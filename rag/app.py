@@ -14,13 +14,13 @@ from ibm_watsonx_ai import Credentials
 
 credentials = Credentials(
     url="https://us-south.ml.cloud.ibm.com",
-    api_key="7MS6j4G8SyYwmlEqOZ7aPlbiW5gur2qkPJ4WSgcOyQ2z",
+    api_key="0elfq1NiZ8ji4fb_UU6hpwZHpNLCttqCVoleby-fh2Sl",
 )
 
 try:
     project_id = os.environ["PROJECT_ID"]
 except KeyError:
-    project_id = "e4dd8e79-8cf6-4cca-a61c-c98484a11313"
+    project_id = "7d48d431-5b51-4db7-9439-1d9b722d6fe8"
 
 
 
@@ -157,21 +157,28 @@ print("Question answering system initialized.")
 
 #rag code end
 
-@app.route('/get_ans', methods=['GET'])
+@app.route('/get_ans', methods=['POST'])
 def process_pdf():
+    # Retrieve JSON data from the request body
+    data = request.get_json()
 
-
-    query_params = request.args
-
-    # Example: Retrieve a specific query parameter
-    param1 = query_params.get('question')  
+    # Example: Retrieve a specific key from the JSON
+    param1 = data.get('question')  
     
+    if not param1:
+        return {"error": "Missing 'question' in request body"}, 400
+
+    # Process the question
     response = qa.run(param1)
     print(f"Answer: {response}")
+    
+    # Return the response
+    return {"answer": response}, 200
+
 
 
   
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5001, debug=True)
 
